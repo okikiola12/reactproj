@@ -5,9 +5,9 @@ import HorizoSlider from '../../components/HorizoSlider'
 
 
 const Home = () => {
+  
   return (
     <>
-
       <HorizoSlider/>
 
 

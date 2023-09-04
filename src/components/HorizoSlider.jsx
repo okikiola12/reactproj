@@ -1,89 +1,115 @@
-import iootz2 from '../images/ioootz-2.jpg'
-import vriootz from '../images/vr-iootz.jpg'
-import ioootz3 from '../images/ioootz-3.jpg'
-/* import { useRef, useState, useEffect } from 'react' */
+import { ReactComponent as CompareIcon } from "./compare.svg"
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 
+const HorizoSlider = ({ topImage, bottomImage }) => {
+  const [isResizing, setIsResizing] = useState(false);
+  const topImageRef = useRef();
+  const handleRef = useRef();
 
+  const setPositioning = useCallback((x) => {
+    const { left, width } = topImageRef.current.getBoundingClientRect();
+    const handleWidth = handleRef.current.offsetWidth;
 
+    if (x >= left && x <= width + left - handleWidth) {
+      handleRef.current.style.left = `${((x - left) / width) * 100}%`;
+      topImageRef.current.style.clipPath = `inset(0 ${
+        100 - ((x - left) / width) * 100
+      }% 0 0)`;
+    }
+  }, []);
 
+  const handleResize = useCallback(
+    (e) => {
+      if (e.clientX) {
+        setPositioning(e.clientX);
+      } else if (e.touches[0] && e.touches[0].clientX) {
+        setPositioning(e.touches[0].clientX);
+      }
+    },
+    [setPositioning]
+  );
 
+  // Set initial positioning on component mount
+  useEffect(() => {
+    const { left, width } = topImageRef.current.getBoundingClientRect();
+    const handleWidth = handleRef.current.offsetWidth;
 
-const HorizoSlider = () => {
+    setPositioning(width / 2 + left - handleWidth / 2);
+  }, [setPositioning]);
 
-    
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
 
-    
+    window.removeEventListener("mousemove", handleResize);
+    window.removeEventListener("touchmove", handleResize);
+    window.removeEventListener("mouseup", handleResizeEnd);
+    window.removeEventListener("touchend", handleResizeEnd);
+  }, [handleResize]);
+
+  const onKeyDown = useCallback(
+    (e) => {
+      const { offsetLeft, offsetParent } = handleRef.current;
+
+      if (e.code === "ArrowLeft") {
+        setPositioning(offsetLeft + offsetParent.offsetLeft - 10);
+      }
+
+      if (e.code === "ArrowRight") {
+        setPositioning(offsetLeft + offsetParent.offsetLeft + 10);
+      }
+    },
+    [setPositioning]
+  );
+
+  // Add keydown event on mount
+  useEffect(() => {
+    window.addEventListener("keydown", onKeyDown);
+  }, [onKeyDown]);
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", handleResize);
+      window.addEventListener("touchmove", handleResize);
+      window.addEventListener("mouseup", handleResizeEnd);
+      window.addEventListener("touchend", handleResizeEnd);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleResize);
+      window.addEventListener("touchmove", handleResize);
+      window.removeEventListener("mouseup", handleResizeEnd);
+      window.removeEventListener("touchend", handleResizeEnd);
+      window.removeEventListener("keyup", onKeyDown);
+    };
+  }, [isResizing, handleResize, handleResizeEnd, onKeyDown]);
+
   return (
-    <div>
-
-<section className="2-section">
-
-<div id="page">
-
-    <div className="page-text-container">
-        <h1 className="page-firh1">
-            Go Smart with it & Ot devices
-        </h1>
-            <p className="page-firp">
-                <span className="page-span">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                </span>                
-            </p>
-
-            <p className="pade-secp">
-                <span className="page-span-2">
-                    "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-                </span>
-            </p>
-
-            <p className="page-thip">
-                <span className="page-span-3">       
-                    "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. 
-                </span>
-            </p>
-    </div>
-
-
-    <div className="wrapper">
-                <div className="bottom">
-                    <img className="ioootz-2" src={iootz2} draggable="false" alt="main-images"/>
-                </div>
-                <div className="middle">
-                    <img className="vr-iootz" src={vriootz} draggable="false" alt="vr-iootz"/>
-                </div>
-                <div className="scroller scroller-middle">
-                            <svg
-                                className="scroller__thumb"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="100"
-                                height="100"
-                                viewBox="0 0 100 100"
-                            >
-                                <polygon points="0 50 37 68 37 32 0 50" fill="rgb(24,24,62)" />
-                                <polygon points="100 50 64 32 64 68 100 50" fill="rgb(24,24,62)" />
-                            </svg>                  
-                </div>
-                <div className="top">
-                    <img className="ioootz" src={ioootz3} draggable="false" alt="ioootz"/>
-                </div>
-                <div className="scroller scroller-top">
-                            <svg
-                                className="scroller__thumb"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="100"
-                                height="100"
-                                viewBox="0 0 100 100"
-                            >
-                                <polygon points="0 50 37 68 37 32 0 50" fill="rgb(24,24,62)" />
-                                <polygon points="100 50 64 32 64 68 100 50" fill="rgb(24,24,62)" />
-                            </svg>
-                        </div>
-                    </div>
-              </div>
-</section>
-    </div>    
-  )
-  }
+    <>
+      <div className="comparison-slider">
+        <div
+          ref={handleRef}
+          className="handle"
+          onMouseDown={() => setIsResizing(true)}
+          onTouchStart={() => setIsResizing(true)}
+        >
+          <CompareIcon />
+        </div>
+        <div ref={topImageRef} className="comparison-item top">
+          <img draggable="false" src={topImage} alt={topImage.alt} />
+        </div>
+        <div className="comparison-item">
+          <img draggable="false" src={bottomImage} alt={bottomImage.alt} />
+        </div>
+      </div>
+      {/* DEMO ONLY */}
+      <p className="photo-creds">
+        Photos by:
+        <a href="https://unsplash.com/@dancalders">@dancalders</a>
+        <a href="https://unsplash.com/@dancalders">@oplattner</a>
+      </p>
+    </>
+  );
+};
 
 export default HorizoSlider;

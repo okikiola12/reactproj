@@ -1,0 +1,12 @@
+
+ <svg
+ 
+    className="scroller__thumb"
+    xmlns="http://www.w3.org/2000/svg"
+    
+
+    viewBox="0 0 100 100"
+      >
+    <polygon points="0 50 37 68 37 32 0 50" fill="rgb(24,24,62)" />
+    <polygon points="100 50 64 32 64 68 100 50" fill="rgb(24,24,62)" />
+  </svg>
